@@ -38,14 +38,23 @@ ABUSIVE_WORDS = {
     "motherfucker",
     "shit",
 }
+ABUSIVE_PATTERN = re.compile(
+    r"(?<![a-z0-9\u0900-\u097f])"
+    + "(" + "|".join(re.escape(word) for word in sorted(ABUSIVE_WORDS)) + ")"
+    + r"(?![a-z0-9\u0900-\u097f])",
+    flags=re.IGNORECASE,
+)
+
+
+def extract_abusive_words(text: str):
+    if not text:
+        return []
+    normalized = re.sub(r"[^a-z0-9\u0900-\u097f]+", " ", text.lower())
+    return sorted(set(match.group(1).lower() for match in ABUSIVE_PATTERN.finditer(normalized)))
 
 
 def contains_abuse(text: str) -> bool:
-    if not text:
-        return False
-    normalized = re.sub(r"[^a-z0-9\u0900-\u097f]+", " ", text.lower())
-    words = normalized.split()
-    return any(word in ABUSIVE_WORDS for word in words)
+    return bool(extract_abusive_words(text))
 
 
 @StarX.on_cmd("chatbot", group_only=True)
@@ -93,7 +102,7 @@ async def chatbot_text(client: Client, message: Message):
                 Yo = is_text["check"]
                 if Yo == "sticker":
                     await message.reply_sticker(f"{hey}")
-                if not Yo == "sticker": and not contains_abuse(hey):
+                if not Yo == "sticker" and not contains_abuse(hey):
                     await message.reply_text(f"{hey}")
 
     if message.reply_to_message:
@@ -114,7 +123,7 @@ async def chatbot_text(client: Client, message: Message):
                     Yo = is_text["check"]
                     if Yo == "sticker":
                         await message.reply_sticker(f"{hey}")
-                    if not Yo == "sticker": and not contains_abuse(hey):
+                    if not Yo == "sticker" and not contains_abuse(hey):
                         await message.reply_text(f"{hey}")
         if not message.reply_to_message.from_user.id == client.id:
             if message.sticker:
@@ -220,7 +229,7 @@ async def chatbot_sticker(client: Client, message: Message):
                     }
                 )
                 if not is_chat:
-                    toggle.insert_one(
+                    chatai.insert_one(
                         {
                             "word": message.reply_to_message.sticker.file_unique_id,
                             "text": message.text,
