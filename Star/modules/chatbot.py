@@ -1,5 +1,6 @@
 
 import random
+import re
 from Abg.chat_status import adminsOnly
 
 from pymongo import MongoClient
@@ -10,6 +11,41 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 from config import MONGO_URL
 from Star import StarX
 from Star.modules.helpers import CHATBOT_ON, is_admins
+
+
+ABUSIVE_WORDS = {
+    "bc",
+    "bkl",
+    "bhosd",
+    "bhosda",
+    "bhosdike",
+    "bsdk",
+    "chutiya",
+    "chut",
+    "gaand",
+    "gandu",
+    "harami",
+    "kutta",
+    "lavde",
+    "lund",
+    "madarchod",
+    "mc",
+    "randi",
+    "saala",
+    "bitch",
+    "fuck",
+    "fucking",
+    "motherfucker",
+    "shit",
+}
+
+
+def contains_abuse(text: str) -> bool:
+    if not text:
+        return False
+    normalized = re.sub(r"[^a-z0-9\u0900-\u097f]+", " ", text.lower())
+    words = normalized.split()
+    return any(word in ABUSIVE_WORDS for word in words)
 
 
 @StarX.on_cmd("chatbot", group_only=True)
@@ -57,7 +93,7 @@ async def chatbot_text(client: Client, message: Message):
                 Yo = is_text["check"]
                 if Yo == "sticker":
                     await message.reply_sticker(f"{hey}")
-                if not Yo == "sticker":
+                if not Yo == "sticker": and not contains_abuse(hey):
                     await message.reply_text(f"{hey}")
 
     if message.reply_to_message:
@@ -78,7 +114,7 @@ async def chatbot_text(client: Client, message: Message):
                     Yo = is_text["check"]
                     if Yo == "sticker":
                         await message.reply_sticker(f"{hey}")
-                    if not Yo == "sticker":
+                    if not Yo == "sticker": and not contains_abuse(hey):
                         await message.reply_text(f"{hey}")
         if not message.reply_to_message.from_user.id == client.id:
             if message.sticker:
@@ -98,6 +134,10 @@ async def chatbot_text(client: Client, message: Message):
                         }
                     )
             if message.text:
+                if contains_abuse(message.text) or contains_abuse(
+                    message.reply_to_message.text
+                ):
+                    return
                 is_chat = chatai.find_one(
                     {"word": message.reply_to_message.text, "text": message.text}
                 )
@@ -146,7 +186,7 @@ async def chatbot_sticker(client: Client, message: Message):
                 Yo = is_text["check"]
                 if Yo == "text":
                     await message.reply_text(f"{hey}")
-                if not Yo == "text":
+                if not Yo == "text": and not contains_abuse(hey):
                     await message.reply_sticker(f"{hey}")
 
     if message.reply_to_message:
@@ -167,10 +207,12 @@ async def chatbot_sticker(client: Client, message: Message):
                     Yo = is_text["check"]
                     if Yo == "text":
                         await message.reply_text(f"{hey}")
-                    if not Yo == "text":
+                    if not Yo == "text": and not contains_abuse(hey):
                         await message.reply_sticker(f"{hey}")
         if not message.reply_to_message.from_user.id == Client.id:
             if message.text:
+                if contains_abuse(message.text):
+                    return
                 is_chat = chatai.find_one(
                     {
                         "word": message.reply_to_message.sticker.file_unique_id,
@@ -230,7 +272,7 @@ async def chatbot_pvt(client: Client, message: Message):
         Yo = is_text["check"]
         if Yo == "sticker":
             await message.reply_sticker(f"{hey}")
-        if not Yo == "sticker":
+        if not Yo == "sticker": and not contains_abuse(hey):
             await message.reply_text(f"{hey}")
     if message.reply_to_message:
         if message.reply_to_message.from_user.id == client.id:
@@ -244,7 +286,7 @@ async def chatbot_pvt(client: Client, message: Message):
             Yo = is_text["check"]
             if Yo == "sticker":
                 await message.reply_sticker(f"{hey}")
-            if not Yo == "sticker":
+            if not Yo == "sticker": and not contains_abuse(hey):
                 await message.reply_text(f"{hey}")
 
 
@@ -279,7 +321,7 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
         Yo = is_text["check"]
         if Yo == "text":
             await message.reply_text(f"{hey}")
-        if not Yo == "text":
+        if not Yo == "text": and not contains_abuse(hey):
             await message.reply_sticker(f"{hey}")
     if message.reply_to_message:
         if message.reply_to_message.from_user.id == client.id:
@@ -293,5 +335,5 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
             Yo = is_text["check"]
             if Yo == "text":
                 await message.reply_text(f"{hey}")
-            if not Yo == "text":
+            if not Yo == "text": and not contains_abuse(hey):
                 await message.reply_sticker(f"{hey}")
