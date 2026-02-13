@@ -1,5 +1,15 @@
+import asyncio
 import logging 
 import time
+
+# Python 3.14 no longer creates a default event loop automatically.
+# Pyrogram's sync helpers still call asyncio.get_event_loop() at import time,
+# so we bootstrap one before importing pyrogram-dependent packages.
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
 from Abg import patch
 
 from motor.motor_asyncio import AsyncIOMotorClient as MongoCli
