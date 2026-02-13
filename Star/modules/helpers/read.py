@@ -1,4 +1,4 @@
-from config import OWNER_USERNAME, SUPPORT_GRP
+from config import OWNER_USERNAME, SUPPORT_GRP, UPDATE_CHNL
 from Star import StarX
 
 START = f"""
