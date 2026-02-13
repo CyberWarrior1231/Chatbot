@@ -9,9 +9,9 @@ API_HASH = getenv("API_HASH", "b9f15e071dec42eedfc1954f12f53f2b")
 BOT_TOKEN = getenv("BOT_TOKEN", None)
 OWNER_ID = int(getenv("OWNER_ID", "8327651421"))
 MONGO_URL = getenv("MONGO_URL", None)
-SUPPORT_GRP = getenv("SUPPORT_GRP", None)
-UPDATE_CHNL = getenv("UPDATE_CHNL", None)
-OWNER_USERNAME = getenv("OWNER_USERNAME", None)
+SUPPORT_GRP = getenv("SUPPORT_GRP", "Thekmx")
+UPDATE_CHNL = getenv("UPDATE_CHNL", "Thekmx")
+OWNER_USERNAME = getenv("OWNER_USERNAME","@kmxertro")
 
 
 def validate_required_config() -> list[str]:
