@@ -13,6 +13,16 @@ SUPPORT_GRP = getenv("SUPPORT_GRP", None)
 UPDATE_CHNL = getenv("UPDATE_CHNL", None)
 OWNER_USERNAME = getenv("OWNER_USERNAME", None)
 
+
+def validate_required_config() -> list[str]:
+    """Return missing required env var names for startup checks."""
+    missing = []
+    if not BOT_TOKEN:
+        missing.append("BOT_TOKEN")
+    if not MONGO_URL:
+        missing.append("MONGO_URL")
+    return missing
+
 # Random Start Images
 IMG = [
     "https://te.legra.ph/file/5bf629d10afd4af953585.jpg",
