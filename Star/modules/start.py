@@ -12,13 +12,11 @@ from Star import StarX
 from Star.database.chats import add_served_chat
 from Star.database.users import add_served_user
 from Star.modules.helpers import (
-    CLOSE_BTN,
     DEV_OP,
     HELP_BTN,
     HELP_BUTN,
     HELP_READ,
     HELP_START,
-    SOURCE_READ,
     START,
 )
 
@@ -71,15 +69,6 @@ async def help(client: StarX, m: Message):
             reply_markup=InlineKeyboardMarkup(HELP_BUTN),
         )
         await add_served_chat(m.chat.id)
-
-
-@StarX.on_cmd("repo")
-async def repo(_, m: Message):
-    await m.reply_text(
-        text=SOURCE_READ,
-        reply_markup=InlineKeyboardMarkup(CLOSE_BTN),
-        disable_web_page_preview=True,
-    )
 
 
 @StarX.on_message(filters.new_chat_members)
