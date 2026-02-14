@@ -6,6 +6,7 @@ from threading import Thread
 
 from flask import Flask
 from pyrogram import idle
+from pyrogram.errors import FloodWait
 
 import config
 from Star import LOGGER, StarX
@@ -25,11 +26,22 @@ def run_flask():
 
 # 2. Start the Pyrogram bot
 async def start_bot():
-    try:
-        await StarX.start()
-    except Exception as ex:
-        LOGGER.exception("Failed to start Telegram client: %s", ex)
-        sys.exit(1)
+    while True:
+        try:
+            await StarX.start()
+            break
+        except FloodWait as ex:
+            wait_seconds = int(getattr(ex, "value", 0) or 0)
+            if wait_seconds <= 0:
+                wait_seconds = 60
+            LOGGER.warning(
+                "FloodWait during bot authorization. Waiting %s seconds before retry.",
+                wait_seconds,
+            )
+            await asyncio.sleep(wait_seconds)
+        except Exception as ex:
+            LOGGER.exception("Failed to start Telegram client: %s", ex)
+            sys.exit(1)
 
     for all_module in ALL_MODULES:
         importlib.import_module("Star.modules." + all_module)
